@@ -59,11 +59,18 @@ def add(request, p1, p2):
 
 def greet_template(req, w): return render(req, "greet.html", {})
 
-def pure_template(req): return render(req, "pure_template.html", {})
 
-def get_reader(request): # note: no other params. # if we knew the parameters ...
+def display_table(request):
 
-  # state = request.GET.get('state', '') 
+    return render(request, 'view_table.html', {"title" : "An astounding table"})
+
+
+def pure_template(req): return render(req, "pure_template.html", {'animal' : "cat"})
+
+
+def get_reader(request): # note: no other params. 
+
+  # state = request.GET.get('state', '')  # if we knew the parameters ...
   d = dict(request.GET._iterlists())
   return HttpResponse(str(d))
 
@@ -136,20 +143,6 @@ def display_pic(request):
 
     return render(request, 'view_pic.html', {"title" : "An astounding plot!",
                                              "pic_source" : reverse_lazy("myapp:pic")})
-
-def display_table(request):
-
-    import pandas as pd
-    import numpy as np
-
-    df = pd.DataFrame(np.random.randn(10, 5), columns=['a', 'b', 'c', 'd', 'e'])
-    table = df.to_html(float_format = "%.3f", classes = "table table-striped", index_names = False)
-    table = table.replace('border="1"','border="0"')
-    table = table.replace('style="text-align: right;"', "") # control this in css, not pandas.
-
-    return render(request, 'view_table.html', {"title" : "An astounding table",
-                                               "html_table" : table})
-
 
 
 def resp_redirect(request):
