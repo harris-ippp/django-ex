@@ -57,7 +57,7 @@ def add(request, p1, p2):
     return HttpResponse("{} + {} = {}".format(p1, p2, p1 + p2))
 
 
-def greet_template(req, w): return render(req, "greet.html", {'who' : w})
+def greet_template(req, w): return render(req, "greet.html", {})
 
 def pure_template(req): return render(req, "pure_template.html", {})
 
