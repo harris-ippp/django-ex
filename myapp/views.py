@@ -57,18 +57,39 @@ def add(request, p1, p2):
     return HttpResponse("{} + {} = {}".format(p1, p2, p1 + p2))
 
 
-def greet_template(req, w): return render(req, "greet.html", {})
+def greet_template(req, w): 
+  
+  return render(req, "greet.html", {"who" : w})
 
 
 def display_table(request):
 
-    return render(request, 'view_table.html', {"title" : "An astounding table"})
+
+   import pandas as pd
+
+   filename = join(settings.STATIC_ROOT, 'myapp/va_presidential.csv')
+
+   df = pd.read_csv(filename)
+
+   table = df.to_html(float_format = "%.3f", classes = "table table-striped", index_names = False)
+   table = table.replace('border="1"','border="0"')
+   table = table.replace('style="text-align: right;"', "") # control this in css, not pandas.
 
 
-def pure_template(req): return render(req, "pure_template.html", {'animal' : "cat"})
+   return render(request, 'view_table.html', {"title" : "Virginia Presidential Elections", 
+                                              "html_table" : table})
 
 
-def get_reader(request): # note: no other params. 
+def pure_template(req):
+
+  params = {"xli" : ["Bessy", "has", "fantastic", "cats"],
+            "animal" : "dog",
+            "di" : {"dog" : "woof", "cat" : "meow", "tiger" : "roar"}}
+  
+  return render(req, "pure_template.html", params)
+
+
+def get_reader(request): # note: no other params.
 
   # state = request.GET.get('state', '')  # if we knew the parameters ...
   d = dict(request.GET._iterlists())
@@ -83,15 +104,15 @@ def form(request):
     state = request.GET.get('state', '')
     if not state: state = request.POST.get('state', 'PA')
 
-    params = {'form_action' : reverse_lazy('myapp:form'), 
-              'form_method' : 'get', 
+    params = {'form_action' : reverse_lazy('myapp:form'),
+              'form_method' : 'get',
               'form' : InputForm({'state' : state}),
               'state' : STATES_DICT[state]}
 
     return render(request, 'form.html', params)
-  
 
-from django.views.generic import FormView  
+
+from django.views.generic import FormView
 class FormClass(FormView):
 
     template_name = 'form.html'
@@ -102,8 +123,8 @@ class FormClass(FormView):
 
       state = request.GET.get('state', 'PA')
 
-      return render(request, self.template_name, {'form_action' : reverse_lazy('myapp:formclass'), 
-                                                  'form_method' : 'get', 
+      return render(request, self.template_name, {'form_action' : reverse_lazy('myapp:formclass'),
+                                                  'form_method' : 'get',
                                                   'form' : InputForm({'state' : state}),
                                                   'state' : STATES_DICT[state]})
 
@@ -111,8 +132,8 @@ class FormClass(FormView):
 
       state = request.POST.get('state', 'PA')
 
-      return render(request, self.template_name, {'form_action' : reverse_lazy('myapp:formclass'), 
-                                                  'form_method' : 'get', 
+      return render(request, self.template_name, {'form_action' : reverse_lazy('myapp:formclass'),
+                                                  'form_method' : 'get',
                                                   'form' : InputForm({'state' : state}),
                                                   'state' : STATES_DICT[state]})
 
@@ -137,7 +158,7 @@ def pic(request, c = None):
 
    figfile.seek(0) # rewind to beginning of file
    return HttpResponse(figfile.read(), content_type="image/png")
-    
+
 
 def display_pic(request):
 
@@ -158,4 +179,3 @@ def resp_redirect(request):
 def resp(request, state):
 
     return HttpResponse("I hear you, {}.".format(STATES_DICT[state]))
-

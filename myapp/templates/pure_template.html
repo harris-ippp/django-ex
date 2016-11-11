@@ -1,0 +1,19 @@
+{% for x in xli %}
+  {{ x }}
+{% endfor %}
+
+</p>
+
+{% if animal == "dog" %}
+  WOOF WOOF!
+{% else %}
+  Poor choice of animal!
+{% endif %}
+
+</p>
+
+<ul>
+{% for k, v in di.items %}
+  <li>{{ k }} says {{ v }}</li>
+{% endfor %}
+</ul>
