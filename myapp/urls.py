@@ -27,5 +27,5 @@ urlpatterns = [
     url(r'^formclass/$', views.FormClass.as_view(), name = "formclass"),
     # url(r'^resp/$', views.resp_redirect, name = "resp_redirect"),
     # url(r'^resp/(?P<state>[A-Z][A-Z])/$', views.resp, name = "resp"),
-    url(r'^static_site/$', views.static_site),
+    url(r'^static_site/$', views.static_site), 
 ]

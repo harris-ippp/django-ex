@@ -179,3 +179,8 @@ def resp_redirect(request):
 def resp(request, state):
 
     return HttpResponse("I hear you, {}.".format(STATES_DICT[state]))
+
+
+def static_site(request):
+
+  return render(request, "static_site.html")
