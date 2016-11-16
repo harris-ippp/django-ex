@@ -57,8 +57,8 @@ def add(request, p1, p2):
     return HttpResponse("{} + {} = {}".format(p1, p2, p1 + p2))
 
 
-def greet_template(req, w): 
-  
+def greet_template(req, w):
+
   return render(req, "greet.html", {"who" : w})
 
 
@@ -76,7 +76,7 @@ def display_table(request):
    table = table.replace('style="text-align: right;"', "") # control this in css, not pandas.
 
 
-   return render(request, 'view_table.html', {"title" : "Virginia Presidential Elections", 
+   return render(request, 'view_table.html', {"title" : "Virginia Presidential Elections",
                                               "html_table" : table})
 
 
@@ -85,15 +85,15 @@ def pure_template(req):
   params = {"xli" : ["Bessy", "has", "fantastic", "cats"],
             "animal" : "dog",
             "di" : {"dog" : "woof", "cat" : "meow", "tiger" : "roar"}}
-  
+
   return render(req, "pure_template.html", params)
 
 
 def get_reader(request): # note: no other params.
 
-  # state = request.GET.get('state', '')  # if we knew the parameters ...
+  state = request.GET.get('state', 'Fool!!')  # if we knew the parameters ...
   d = dict(request.GET._iterlists())
-  return HttpResponse(str(d))
+  return HttpResponse(str(state))
 
 
 from .forms import InputForm
@@ -101,8 +101,8 @@ from .models import STATES_DICT
 
 def form(request):
 
-    state = request.GET.get('state', '')
-    if not state: state = request.POST.get('state', 'PA')
+    state = request.GET.get('state', 'Fool')
+    # if not state: state = request.POST.get('state', 'PA')
 
     params = {'form_action' : reverse_lazy('myapp:form'),
               'form_method' : 'get',
@@ -160,10 +160,10 @@ def pic(request, c = None):
    return HttpResponse(figfile.read(), content_type="image/png")
 
 
-def display_pic(request):
+def display_pic(request, c = 'r'):
 
     return render(request, 'view_pic.html', {"title" : "An astounding plot!",
-                                             "pic_source" : reverse_lazy("myapp:pic")})
+                                             "pic_source" : reverse_lazy("myapp:pic_col", kwargs = {'c' : c})})
 
 
 def resp_redirect(request):
