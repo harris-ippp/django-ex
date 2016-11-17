@@ -11,6 +11,7 @@
 
 
     <link rel="stylesheet" type="text/css" href="{% static 'myapp/style.css' %}" />
+
     <title>{{ title | default:"My Django Site" }}</title>
 
     {% block header_ex %}{% endblock %}
@@ -37,8 +38,12 @@
           <li><a href="#bb">Betty B</a></li>
         </ul>
       </li>
-
     </ul>
+
+    <form method="{{ form_method }}">
+      {{ form.currency }}
+    </form>
+
   </div>
 </nav>
 

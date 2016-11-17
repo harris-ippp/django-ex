@@ -1,14 +1,17 @@
 from django import forms  
-from .models import Input, STATES
+from .models import Input, STATES, CURRENCY
 
 class InputForm(forms.ModelForm):  
 
-    attrs = {'class ' : 'form−control ',
+    state = forms.ChoiceField(choices=STATES, required=True,
+                              widget=forms.Select())
+
+    attrs = {'class ' : 'form-nav-control',
              'onchange ' : 'this.form.submit() '}
 
-    state = forms.ChoiceField(choices=STATES, required=True,
-                              widget=forms.Select(attrs = attrs))
+    currency = forms.ChoiceField(choices=CURRENCY, required=True,
+                                 widget=forms.Select(attrs = attrs))
     class Meta:
 
         model = Input
-        fields = ['state']
+        fields = ['state', 'address', "currency"]

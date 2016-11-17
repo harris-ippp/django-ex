@@ -1,6 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 {% if state %}
     I hear you, {{ state }}!! </br>
     You are at {{ location }} -- what a swell spot.
+{% endif %}
+
+{% if currency %}
+    I hear you, {{ currency }}!! </br>
 {% endif %}
 
 <form action="{{ form_action }}" 
@@ -9,5 +17,11 @@
     {% csrf_token %}
   {% endif %}
 
-  {{ form.as_p }}
+  {{ form.address }} </[>
+  {{ form.state }}
+  <input type="submit" value="Submit">
 </form>
+
+
+{% endblock %}
+

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+  {{ form.state }}
   {{ html_table | safe }}
   {% lorem 3 p %} <!-- some text -->
 {% endblock %}

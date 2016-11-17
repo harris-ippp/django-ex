@@ -100,11 +100,13 @@ def get_reader(request): # note: no other params.
 
 
 from .forms import InputForm
-from .models import STATES_DICT
+from .models import STATES_DICT, CURRENCY_DICT
 
 def form(request):
 
     state = request.GET.get('state', 'PA')
+    address = request.GET.get('address', 'Liberty Bell')
+    currency = request.GET.get("currency", "EUR")
     # if not state: state = request.POST.get('state', 'PA')
 
     from geopy import Nominatim
@@ -114,9 +116,12 @@ def form(request):
 
     params = {'form_action' : reverse_lazy('myapp:form'),
               'form_method' : 'get',
-              'form' : InputForm({'state' : state}),
+              'form' : InputForm({'state' : state, 
+                                  'address' : address,
+                                  'currency': currency}),
               'state' : STATES_DICT[state], 
               'location' : location}
+              # 'currency' : CURRENCY_DICT[currency]}
 
     return render(request, 'form.html', params)
 

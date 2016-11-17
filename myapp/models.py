@@ -55,9 +55,17 @@ STATES = (
     ('WY', 'Wyoming')
    )
 
+CURRENCY = (('EUR', "Euro"),
+            ('GBP', "British Pound"),
+            ("AUD", "Australian Dollar")
+           )
+
 STATES_DICT = dict(STATES)
+CURRENCY_DICT = dict(CURRENCY)
 
 class Input(models.Model):
 
     state = models.CharField(max_length=2, choices=STATES)
-    name  = models.CharField(max_length=50)
+    address = models.CharField(max_length=50)
+
+    currency = models.CharField(max_length=3, choices=CURRENCY)
