@@ -91,9 +91,12 @@ def pure_template(req):
 
 def get_reader(request): # note: no other params.
 
-  state = request.GET.get('state', 'Fool!!')  # if we knew the parameters ...
+  address = request.GET.get('address', 'ADDR')  # if we knew the parameters ...
+  state = request.GET.get('state', 'STATE')  # if we knew the parameters ...
+  zipc = request.GET.get('zipc', 'ZIP')  # if we knew the parameters ...
   d = dict(request.GET._iterlists())
-  return HttpResponse(str(state))
+
+  return HttpResponse(str(d))
 
 
 from .forms import InputForm
@@ -101,13 +104,19 @@ from .models import STATES_DICT
 
 def form(request):
 
-    state = request.GET.get('state', 'Fool')
+    state = request.GET.get('state', 'PA')
     # if not state: state = request.POST.get('state', 'PA')
+
+    from geopy import Nominatim
+    g = Nominatim()
+
+    location = str(g.geocode(STATES_DICT[state])._point[:2])
 
     params = {'form_action' : reverse_lazy('myapp:form'),
               'form_method' : 'get',
               'form' : InputForm({'state' : state}),
-              'state' : STATES_DICT[state]}
+              'state' : STATES_DICT[state], 
+              'location' : location}
 
     return render(request, 'form.html', params)
 
