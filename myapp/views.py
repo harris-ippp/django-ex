@@ -198,3 +198,35 @@ def resp(request, state):
 def static_site(request):
 
   return render(request, "static_site.html")
+
+
+
+import geopandas as gpd, folium
+from django.conf import settings
+
+def embedded_map(request):
+
+  filename = join(settings.STATIC_ROOT, 'myapp/TM_WORLD_BORDERS_SIMPL-0.3.shp')
+  
+  m = folium.Map([39.828175, -98.5795], tiles='stamenwatercolor', zoom_start = 1)
+  
+  df = gpd.read_file(filename)
+  
+  mountains = ["Aconcagua", "Mount Kosciuszko", "Mont Blanc, Chamonix", "Mount Everest", "Denali", "Mount Elbrus", "Puncak Jaya", "Mount Kilimanjaro", "Mount Vinson"]
+  mtn_df = gpd.tools.geocode(mountains, provider = "googlev3").to_crs(df.crs)
+  
+  folium.GeoJson(gpd.sjoin(df, mtn_df, how = "inner", op = "contains"),
+                 style_function=lambda feature: {
+                  'fillColor': 'red', 'fillOpacity' : 0.6, 'weight' : 2, 'color' : 'black'
+                 }).add_to(m)
+  
+  for xi, pt in mtn_df.iterrows():
+      folium.RegularPolygonMarker(pt.geometry.coords[::][0][::-1], popup=pt.address, 
+                          number_of_sides = 5, radius = 8, fill_color = "black", fill_opacity = 1.0).add_to(m)
+  
+  map_string = m._repr_html_().replace("width:100%;", "width:60%;float:right;", 1)
+
+  return render(request, 'view_map.html', {"title" : "Seven Summits",
+                                           "map_string" : map_string})
+
+
