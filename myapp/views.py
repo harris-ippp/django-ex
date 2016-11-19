@@ -21,7 +21,7 @@ import geopandas as gpd, folium
 from geopy import Nominatim
 
 import seaborn as sns
-sns.set(font_scale = 1.5)
+sns.set(font_scale = 1.7)
 
 from io import BytesIO
 
@@ -213,14 +213,14 @@ def plot(request, c = "Accomack County"):
 
    df["Democratic Share"] = 100 - df["Republican Share"]
 
-   ax = df[["Democratic Share", "Republican Share"]].plot(colors = ["b", "r"])
+   ax = df[["Democratic Share", "Republican Share"]].plot(color = ["b", "r"])
    ax.set_ylabel("Percent of Two-Party Vote")
 
    # write bytes instead of file.
    figfile = BytesIO()
 
    # this is where the color is used.
-   plt.subplots_adjust(bottom = 0.14)
+   plt.subplots_adjust(bottom = 0.16)
    try: ax.figure.savefig(figfile, format = 'png')
    except ValueError: raise Http404("No such color")
 
