@@ -19,10 +19,10 @@ urlpatterns = [
 
     url(r'^get_reader/$', views.get_reader, name='get_reader'),
     url(r'^form/$', views.form, name = "form"),
+    url(r'^plot/(?P<c>[A-Za-z ]+)/$', views.plot, name='plot'),
     url(r'^pic/$', views.pic, name='pic'),
     url(r'^pic/(?P<c>[a-z])/$', views.pic, name='pic_col'),
     url(r'^display_pic/$', views.display_pic, name='display_pic'),
-    url(r'^display_pic/(?P<c>[a-z])/$', views.display_pic, name='display_pic_col'),
     url(r'^display_table/$', views.display_table, name='display_table'),
     url(r'^formclass/$', views.FormClass.as_view(), name = "formclass"),
     # url(r'^resp/$', views.resp_redirect, name = "resp_redirect"),

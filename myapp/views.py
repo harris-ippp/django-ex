@@ -7,14 +7,29 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse_lazy
 
 
+from os.path import join
+from django.conf import settings
+
+import numpy as np, pandas as pd
+import matplotlib.pyplot as plt
+
+
+from .forms import InputForm
+from .models import STATES_DICT, CURRENCY_DICT
+
+import geopandas as gpd, folium
+from geopy import Nominatim
+
+import seaborn as sns
+sns.set(font_scale = 1.5)
+
+from io import BytesIO
+
 def index(request):
     return HttpResponse("Hello, world. You're at the index.")
 
 
 def table(request):
-
-    import pandas as pd
-    import numpy as np
 
     df = pd.DataFrame(np.random.randn(10, 5), columns=['a', 'b', 'c', 'd', 'e'])
     table = df.to_html(float_format = "%.3f", classes = "table table-striped", index_names = False)
@@ -24,12 +39,8 @@ def table(request):
     return HttpResponse(table)
 
 
-from os.path import join
-from django.conf import settings
-
 def csv(request, year = None):
 
-   import pandas as pd
 
    filename = join(settings.STATIC_ROOT, 'myapp/va_presidential.csv')
 
@@ -62,22 +73,29 @@ def greet_template(req, w):
   return render(req, "greet.html", {"who" : w})
 
 
+from .forms import CountiesForm
 def display_table(request):
 
+    county = request.GET.get('county', 'Accomack County')
 
-   import pandas as pd
+    filename = join(settings.STATIC_ROOT, 'myapp/va_presidential.csv')
 
-   filename = join(settings.STATIC_ROOT, 'myapp/va_presidential.csv')
+    df = pd.read_csv(filename)
 
-   df = pd.read_csv(filename)
+    df = df[df["County/City"] == county]
+    if not df.size: return HttpResponse("No such county!")
 
-   table = df.to_html(float_format = "%.3f", classes = "table table-striped", index_names = False)
-   table = table.replace('border="1"','border="0"')
-   table = table.replace('style="text-align: right;"', "") # control this in css, not pandas.
+    table = df.to_html(float_format = "%.3f", classes = "table table-striped", index = False)
+    table = table.replace('border="1"','border="0"')
+    table = table.replace('style="text-align: right;"', "") # control this in css, not pandas.
 
+    params = {'title' : county,
+              'form_action' : reverse_lazy('myapp:display_pic'),
+              'form_method' : 'get',
+              'form' : CountiesForm({'county' : county}),
+              'html_table' : table}
 
-   return render(request, 'view_table.html', {"title" : "Virginia Presidential Elections",
-                                              "html_table" : table})
+    return render(request, 'view_table.html', params)
 
 
 def pure_template(req):
@@ -99,8 +117,6 @@ def get_reader(request): # note: no other params.
   return HttpResponse(str(d))
 
 
-from .forms import InputForm
-from .models import STATES_DICT, CURRENCY_DICT
 
 def form(request):
 
@@ -109,7 +125,6 @@ def form(request):
     currency = request.GET.get("currency", "EUR")
     # if not state: state = request.POST.get('state', 'PA')
 
-    from geopy import Nominatim
     g = Nominatim()
 
     location = str(g.geocode(STATES_DICT[state])._point[:2])
@@ -152,7 +167,6 @@ class FormClass(FormView):
                                                   'state' : STATES_DICT[state]})
 
 
-import matplotlib.pyplot as plt, numpy as np
 
 def pic(request, c = None):
 
@@ -163,7 +177,6 @@ def pic(request, c = None):
    plt.plot(t, u, color = c)
 
    # write bytes instead of file.
-   from io import BytesIO
    figfile = BytesIO()
 
    # this is where the color is used.
@@ -174,10 +187,45 @@ def pic(request, c = None):
    return HttpResponse(figfile.read(), content_type="image/png")
 
 
+from .forms import CountiesForm
 def display_pic(request, c = 'r'):
 
-    return render(request, 'view_pic.html', {"title" : "An astounding plot!",
-                                             "pic_source" : reverse_lazy("myapp:pic_col", kwargs = {'c' : c})})
+    county = request.GET.get('county', 'Accomack County')
+
+    params = {'title' : county,
+              'form_action' : reverse_lazy('myapp:display_pic'),
+              'form_method' : 'get',
+              'form' : CountiesForm({'county' : county}),
+              'pic_source' : reverse_lazy("myapp:plot", kwargs = {'c' : county})}
+
+    return render(request, 'view_pic.html', params)
+
+
+
+def plot(request, c = "Accomack County"):
+
+   filename = join(settings.STATIC_ROOT, 'myapp/va_presidential.csv')
+
+   df = pd.read_csv(filename, index_col = "Year", parse_dates = ["Year"])
+
+   df = df[df["County/City"] == c]
+   if not df.size: return HttpResponse("No such county!")
+
+   df["Democratic Share"] = 100 - df["Republican Share"]
+
+   ax = df[["Democratic Share", "Republican Share"]].plot(colors = ["b", "r"])
+   ax.set_ylabel("Percent of Two-Party Vote")
+
+   # write bytes instead of file.
+   figfile = BytesIO()
+
+   # this is where the color is used.
+   plt.subplots_adjust(bottom = 0.14)
+   try: ax.figure.savefig(figfile, format = 'png')
+   except ValueError: raise Http404("No such color")
+
+   figfile.seek(0) # rewind to beginning of file
+   return HttpResponse(figfile.read(), content_type="image/png")
 
 
 def resp_redirect(request):
@@ -200,9 +248,6 @@ def static_site(request):
   return render(request, "static_site.html")
 
 
-
-import geopandas as gpd, folium
-from django.conf import settings
 
 def embedded_map(request):
 
